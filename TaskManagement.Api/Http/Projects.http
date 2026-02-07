@@ -1,0 +1,51 @@
+@baseUrl = https://localhost:7141
+@projectId = 07b20039-766c-42e9-af3f-02b050e7e359
+@teamId = 01e328c9-34ef-4d2a-bffa-d1f3ca991ae9
+
+### --------------------------------------------------
+### GET all projects
+### --------------------------------------------------
+GET {{baseUrl}}/api/projects
+Accept: application/json
+
+
+### --------------------------------------------------
+### GET project by id
+### --------------------------------------------------
+GET {{baseUrl}}/api/projects/{{projectId}}
+Accept: application/json
+
+
+### --------------------------------------------------
+### CREATE project
+### --------------------------------------------------
+POST {{baseUrl}}/api/projects
+Content-Type: application/json
+Accept: application/json
+
+{
+  "teamId": "{{teamId}}",
+  "name": "New Project from HTTP file",
+  "description": "Created using projects.http"
+}
+
+
+### --------------------------------------------------
+### UPDATE project
+### --------------------------------------------------
+PUT {{baseUrl}}/api/projects/{{projectId}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "name": "Updated Project Name",
+  "description": "Updated via HTTP file",
+  "status": 1
+}
+
+
+### --------------------------------------------------
+### DELETE project
+### --------------------------------------------------
+DELETE {{baseUrl}}/api/projects/{{projectId}}
+Accept: application/json
