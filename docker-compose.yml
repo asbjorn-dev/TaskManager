@@ -1,0 +1,13 @@
+services:
+  api:
+    build: .
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DbConnection=Data Source=/app/data/TaskManagement.db
+    volumes:
+      - taskmanagement-data:/app/data
+
+volumes:
+  taskmanagement-data:

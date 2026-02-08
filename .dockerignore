@@ -1,0 +1,7 @@
+# Undgår at få unøvendige filer med i image (også db)
+**/bin/
+**/obj/
+**/.vs/
+**/.idea/
+**/*.db
+**/appsettings.Development.json

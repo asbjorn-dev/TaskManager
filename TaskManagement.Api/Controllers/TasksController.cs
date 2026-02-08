@@ -1,7 +1,6 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using TaskManagement.Api.Interfaces;
 using TaskManagement.Api.Dtos.Tasks;
+using TaskManagement.Api.Interfaces;
 
 namespace TaskManagement.Api.Controllers
 {
@@ -26,7 +25,7 @@ namespace TaskManagement.Api.Controllers
         }
 
         // GET: api/Tasks/{id} 
-        [HttpGet("{id:guid }")]
+        [HttpGet("{id:guid}")]
         public async Task<ActionResult<TaskResponseDto>> GetById(Guid id)
         {
             var tasks = await _taskService.GetByIdAsync(id);
@@ -51,7 +50,7 @@ namespace TaskManagement.Api.Controllers
             {
                 var created = await _taskService.CreateAsync(dto);
 
-                return CreatedAtAction(nameof(GetById), new {id = created.Id}, created);
+                return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
             }
             catch (ArgumentException ex)
             {
@@ -76,8 +75,10 @@ namespace TaskManagement.Api.Controllers
             }
         }
 
+        // TODO: Tilføj PATCH endpoint til håndtere kun opdater tags
+
         // DELETE: api/tasks/{id}
-        [HttpDelete("id:guid")]
+        [HttpDelete("{id:guid}")]
         public async Task<ActionResult> Delete(Guid id)
         {
             var deletedTask = await _taskService.DeleteAsync(id);

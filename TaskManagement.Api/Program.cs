@@ -23,10 +23,12 @@ builder.Services.AddSwaggerGen();
 // repositories 
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 
 // services 
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<ITeamService, TeamService>();
 
 // helpers
 builder.Services.AddScoped<TaskServiceHelper>();
