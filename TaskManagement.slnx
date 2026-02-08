@@ -1,4 +1,5 @@
 <Solution>
   <Project Path="TaskManagement.Api/TaskManagement.Api.csproj" />
+  <Project Path="TaskManagement.Identity/TaskManagement.Identity.csproj" />
   <Project Path="TaskManagement.Tests/TaskManagement.Tests.csproj" />
 </Solution>
