@@ -3,6 +3,7 @@ using TaskManagement.Api.Dtos.Tasks;
 using TaskManagement.Api.Interfaces;
 using TaskManagement.Api.Helpers;
 using TaskManagement.Api.Models;
+using TaskManagement.Shared.Events;
 
 
 namespace TaskManagement.Api.Services;
@@ -11,11 +12,13 @@ public class TaskService : ITaskService
 {
     private readonly ITaskRepository _repository;
     private readonly TaskServiceHelper _taskServiceHelper;
+    private readonly IEventPublisher _eventPublisher;
     
-    public TaskService(ITaskRepository repository, TaskServiceHelper taskServiceHelper)
+    public TaskService(ITaskRepository repository, TaskServiceHelper taskServiceHelper, IEventPublisher eventPublisher)
     {
         _repository = repository;
         _taskServiceHelper = taskServiceHelper;
+        _eventPublisher = eventPublisher;
     }
     
     
@@ -71,7 +74,7 @@ public class TaskService : ITaskService
             AssignedUserId = dto.AssignedUserId,
             CreatedAt = DateTime.UtcNow,
         };
-        
+
         var createdTask = await _repository.AddAsync(task);
         
         // håndtere tags (hvis de er med)
@@ -79,10 +82,22 @@ public class TaskService : ITaskService
         {
             await _taskServiceHelper.AddTagsToTaskAsync(createdTask.Id, dto.Tags);
         }
-        
+
         // reload task med tags for at returnere korrekt dto og sikrer et response der med alle tags
         // nødvendig fordi tags tilføjes efter task creation
         var taskWithTags = await _repository.GetByIdAsync(createdTask.Id);
+
+        // Publish event til RabbitMQ
+        await _eventPublisher.PublishAsync(new TaskCreatedEvent
+        {
+            TaskId = task.Id,
+            Title = task.Title,
+            ProjectId = task.ProjectId,
+            DueDate = task.DueDate,
+            AssignedUserId = task.AssignedUserId,
+            CreatedAt = task.CreatedAt
+        }, "task.created");
+        
         return _taskServiceHelper.MapToDto(taskWithTags!);
     }
 

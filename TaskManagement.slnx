@@ -1,5 +1,7 @@
 <Solution>
   <Project Path="TaskManagement.Api/TaskManagement.Api.csproj" />
   <Project Path="TaskManagement.Identity/TaskManagement.Identity.csproj" />
+  <Project Path="TaskManagement.Notifications/TaskManagement.Notifications.csproj" />
+  <Project Path="TaskManagement.Shared/TaskManagement.Shared.csproj" />
   <Project Path="TaskManagement.Tests/TaskManagement.Tests.csproj" />
 </Solution>

@@ -5,6 +5,7 @@ using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using TaskManagement.Api.Data;
 using TaskManagement.Api.Helpers;
+using TaskManagement.Api.Infrastructure;
 using TaskManagement.Api.Interfaces;
 using TaskManagement.Api.Repositories;
 using TaskManagement.Api.Services;
@@ -51,6 +52,11 @@ builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
+
+// RabbitMQ - Singleton grundet bekostninger(1 connection deles af alle requests, står i rabbit docs)
+builder.Services.AddSingleton<RabbitMqConnectionFactory>();
+builder.Services.AddSingleton<IEventPublisher, RabbitMqPublisher>();
+
 
 // helpers
 builder.Services.AddScoped<TaskServiceHelper>();
