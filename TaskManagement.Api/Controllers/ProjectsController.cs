@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagement.Api.Dtos.Projects;
 using TaskManagement.Api.Interfaces;
@@ -6,6 +7,7 @@ namespace TaskManagement.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class ProjectsController : ControllerBase
 {
     private readonly IProjectService _projectService;
@@ -42,6 +44,8 @@ public class ProjectsController : ControllerBase
         try
         {
             var created = await _projectService.CreateAsync(dto);
+
+            // CreatedAtAction siger hvor ressource er blevet lavet henne (check parametre for mere info)
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
         catch (ArgumentException ex)
@@ -61,6 +65,7 @@ public class ProjectsController : ControllerBase
     
     // DELETE: api/projects/{id}
     [HttpDelete("{id:guid}")]
+    [Authorize(Roles = "Admin")]
     public async Task<ActionResult> Delete(Guid id)
     {
         var deletedProject = await _projectService.DeleteAsync(id);

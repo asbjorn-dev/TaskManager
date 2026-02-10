@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagement.Api.Dtos.Tasks;
 using TaskManagement.Api.Interfaces;
@@ -6,6 +7,7 @@ namespace TaskManagement.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class TasksController : ControllerBase
     {
         private readonly ITaskService _taskService;
@@ -75,10 +77,11 @@ namespace TaskManagement.Api.Controllers
             }
         }
 
-        // TODO: Tilføj PATCH endpoint til håndtere kun opdater tags
+        // TODO: overvej at tilføje PATCH endpoint til håndtere kun opdater tags
 
         // DELETE: api/tasks/{id}
         [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Delete(Guid id)
         {
             var deletedTask = await _taskService.DeleteAsync(id);

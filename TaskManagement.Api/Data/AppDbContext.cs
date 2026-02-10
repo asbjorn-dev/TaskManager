@@ -3,7 +3,7 @@ using TaskManagement.Api.Models;
 
 namespace TaskManagement.Api.Data
 {
-    // makes session to the database 
+    // DI til db config (hvilken db, connection string osv.).
     public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
     {
         public DbSet<Project> Projects => Set<Project>();

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using TaskManagement.Api.Dtos.Teams;
@@ -7,6 +8,7 @@ namespace TaskManagement.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class TeamsController : ControllerBase
     {
         private readonly ITeamService _teamService;
@@ -52,6 +54,7 @@ namespace TaskManagement.Api.Controllers
 
         // DELETE: api/teams/{id}
         [HttpDelete("{id:guid}")]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult> Delete(Guid id)
         {
             var deletedTeam = await _teamService.DeleteAsync(id);
