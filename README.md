@@ -89,3 +89,4 @@ dotnet test
 - Kubernetes deployment
 - Arkitektur-diagrammer (draw.io)
 - Forbedre test coverage
+- Videreudvikle Notification Service, så den sender emails
