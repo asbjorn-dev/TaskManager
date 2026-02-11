@@ -46,6 +46,8 @@ Jira-inspireret task management API med relationel datamodel (Teams, Projects, T
 ```bash
 docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management
 docker run -d --name redis -p 6379:6379 redis:latest
+docker run -d --name redisinsight -p 5540:5540 redis/redisinsight:latest
+
 ```
 
 ## Start services
@@ -75,6 +77,13 @@ Login via /api/auth/login og kopier JWT token
 Gå til http://localhost:5165/swagger (Core API) og klik "Authorize" - indsæt token.
 
 Nu kan du oprette Teams, Projects og Tasks
+
+### Management UI'er
+
+| UI | URL | Credentials |
+|----|-----|-------------|
+| **RabbitMQ Management** | `http://localhost:15672` | guest / guest |
+| **RedisInsight** | `http://localhost:5540` | Tilføj connection: host `host.docker.internal`, port `6379` |
 
 
 ### Kør tests
