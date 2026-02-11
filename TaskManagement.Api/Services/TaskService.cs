@@ -13,34 +13,70 @@ public class TaskService : ITaskService
     private readonly ITaskRepository _repository;
     private readonly TaskServiceHelper _taskServiceHelper;
     private readonly IEventPublisher _eventPublisher;
+    private readonly ICacheService _cacheService;
     
-    public TaskService(ITaskRepository repository, TaskServiceHelper taskServiceHelper, IEventPublisher eventPublisher)
+    public TaskService(ITaskRepository repository, TaskServiceHelper taskServiceHelper, IEventPublisher eventPublisher, ICacheService cacheService)
     {
         _repository = repository;
         _taskServiceHelper = taskServiceHelper;
         _eventPublisher = eventPublisher;
+        _cacheService = cacheService;
     }
     
     
     public async Task<IEnumerable<TaskResponseDto>> GetAllAsync()
     {
-        var tasks = await _repository.GetAllAsync();
+        // tjek redis cache først (cache hit)
+        var cachedTasks = await _cacheService.GetAsync<IEnumerable<TaskResponseDto>>("tasks:all");
+        if (cachedTasks != null)
+            return cachedTasks;
 
-        return tasks.Select(_taskServiceHelper.MapToDto);
+        // cache miss - hent fra db
+        var tasks = await _repository.GetAllAsync();
+        var result = tasks.Select(_taskServiceHelper.MapToDto).ToList();
+
+        // gem i redis
+        await _cacheService.SetAsync("tasks:all", result);
+
+        return result;
     }
 
     public async Task<TaskResponseDto?> GetByIdAsync(Guid id)
     {
+        // tjek redis cache om task findes 
+        var cacheKey = $"tasks:{id}"; // unik cache key f.eks. "tasks:123e456..."
+        var cachedTask = await _cacheService.GetAsync<TaskResponseDto>(cacheKey);
+        if (cachedTask != null)
+            return cachedTask;
+
+        // cache miss - hent fra db
         var taskById = await _repository.GetByIdAsync(id);
+        if (taskById == null)
+            return null;
         
-        return taskById == null ? null : _taskServiceHelper.MapToDto(taskById);
+        // map til dto og gem i cache
+        var result = _taskServiceHelper.MapToDto(taskById);
+        await _cacheService.SetAsync(cacheKey, result);
+        
+        return result;
     }
 
     public async Task<IEnumerable<TaskResponseDto>> GetByProjectIdAsync(Guid projectId)
     {
-        var taskByProjectId = await _repository.GetByProjectIdAsync(projectId);
+        // tjek redis cache om task findes udfra specifikt projekt
+        var cachekey = $"tasks:project:{projectId}";
+        var cached = await _cacheService.GetAsync<IEnumerable<TaskResponseDto>>(cachekey);
+        if (cached != null)
+            return cached;
+
+        // cache miss - hent fra db
+        var tasks = await _repository.GetByProjectIdAsync(projectId);
+        var result = tasks.Select(_taskServiceHelper.MapToDto).ToList();
+
+        // gem i redis
+        await _cacheService.SetAsync(cachekey, result);
         
-        return taskByProjectId.Select(_taskServiceHelper.MapToDto);
+        return result;
     }
 
     public async Task<TaskResponseDto> CreateAsync(CreateTaskDto dto)
@@ -87,7 +123,7 @@ public class TaskService : ITaskService
         // nødvendig fordi tags tilføjes efter task creation
         var taskWithTags = await _repository.GetByIdAsync(createdTask.Id);
 
-        // Publish event til RabbitMQ
+        // Publish event til RabbitMQ (notification service)
         await _eventPublisher.PublishAsync(new TaskCreatedEvent
         {
             TaskId = task.Id,
@@ -98,6 +134,10 @@ public class TaskService : ITaskService
             CreatedAt = task.CreatedAt
         }, "task.created");
         
+        // invalidate cache - ny task oprettes, skal cache ryddes (forældet)
+        await _cacheService.RemoveAsync("tasks:all");
+        await _cacheService.RemoveAsync($"tasks:project:{task.ProjectId}");
+
         return _taskServiceHelper.MapToDto(taskWithTags!);
     }
 
@@ -132,11 +172,31 @@ public class TaskService : ITaskService
         
         // reload task med opdaterede tags 
         var taskWithTags = await _repository.GetByIdAsync(updatedTask.Id);
+
+        // invalidate cache - når man opdater task, fjernes nuværende cached tasks
+        await _cacheService.RemoveAsync("tasks:all"); // slet alle tasks fra cache
+        await _cacheService.RemoveAsync($"tasks:{id}"); // slet specifik task fra cache
+        await _cacheService.RemoveAsync($"tasks:project:{task.ProjectId}"); // slet task for specifik projekt 
+
         return _taskServiceHelper.MapToDto(taskWithTags!);
     }
 
     public async Task<bool> DeleteAsync(Guid id)
     {
-        return await _repository.DeleteAsync(id);
+        // GET task'en før vi slet fra db så vi ved hvad projekt cache skal slettes ved create og update
+        var task = await _repository.GetByIdAsync(id);
+
+        // slet fra db
+        var deleted = await _repository.DeleteAsync(id);
+
+        // hvis delete lykkes og task findes, slet fra cache
+        if (deleted && task != null)
+        {
+            await _cacheService.RemoveAsync("tasks:all");
+            await _cacheService.RemoveAsync($"tasks:{id}");
+            await _cacheService.RemoveAsync($"tasks:project:{task.ProjectId}");
+        }
+
+        return deleted;
     }
 }

@@ -9,18 +9,26 @@ namespace TaskManagement.Api.Services
     public class ProjectService : IProjectService
     {
         private readonly IProjectRepository _repository;
-        public ProjectService(IProjectRepository repository)
+        private readonly ICacheService _cacheService;
+        public ProjectService(IProjectRepository repository, ICacheService cacheService)
         {
             _repository = repository;
+            _cacheService = cacheService;
         }
 
 
         public async Task<IEnumerable<ProjectResponseDto>> GetAllAsync()
         {
+            // hent projects fra redis og return cache data hvis cache hit
+            var cachedProjects = await _cacheService.GetAsync<IEnumerable<ProjectResponseDto>>("projects:all");
+            if (cachedProjects != null)
+                return cachedProjects;
+
+            // cache miss - hent fra db
             var projects = await _repository.GetAllAsync();
             
             // maps model til DTO
-            return projects.Select(p => new ProjectResponseDto
+            var result = projects.Select(p => new ProjectResponseDto
             {
                 Id = p.Id,
                 TeamId = p.TeamId,
@@ -28,19 +36,28 @@ namespace TaskManagement.Api.Services
                 Description = p.Description,
                 Status = p.Status,
                 CreatedAt = p.CreatedAt
-            });
+            }).ToList();
+
+            // cache alle projects til redis med key
+            await _cacheService.SetAsync("projects:all", result);
+
+            return result;
         }
 
         public async Task<ProjectResponseDto?> GetByIdAsync(Guid id)
         {
+            var cacheKey = $"projects:{id}"; // unik cache key f.eks. "project:123e456..."
+            var cachedProject = await _cacheService.GetAsync<ProjectResponseDto>(cacheKey);
+            if (cachedProject != null)
+                return cachedProject;
+
             // find project udfra id parameter først
             var project = await _repository.GetByIdAsync(id);
-
             if (project == null)
                 return null;
             
             // maps model til DTO
-            return new ProjectResponseDto
+            var result = new ProjectResponseDto
             {
                 Id = project.Id,
                 TeamId = project.TeamId,
@@ -49,6 +66,11 @@ namespace TaskManagement.Api.Services
                 Status = project.Status,
                 CreatedAt = project.CreatedAt
             };
+
+            // cache project i redis
+            await _cacheService.SetAsync(cacheKey, result);
+
+            return result;
         }
 
         public async Task<ProjectResponseDto> CreateAsync(CreateProjectDto dto)
@@ -71,6 +93,9 @@ namespace TaskManagement.Api.Services
             
             var createdProject = await _repository.AddAsync(project);
             
+            // invalidate cache - slet alle cached projects når vi laver ny project
+            await _cacheService.RemoveAsync("projects:all");
+
             // map model til DTO
             return new ProjectResponseDto
             {
@@ -97,6 +122,10 @@ namespace TaskManagement.Api.Services
             
             var updatedProject = await _repository.UpdateAsync(projectToUpdate);
             
+            // cache invalidation - slet alle projects og det specifikke project fra cache så GetByIdAsync ikke har gammel cache
+            await _cacheService.RemoveAsync("projects:all");
+            await _cacheService.RemoveAsync($"projects:{id}");
+
             // map model til DTO
             return new ProjectResponseDto
             {
@@ -111,7 +140,15 @@ namespace TaskManagement.Api.Services
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            return await _repository.DeleteAsync(id);
+            var ProjectToDelete = await _repository.DeleteAsync(id);
+
+            if (ProjectToDelete)
+            {
+                await _cacheService.RemoveAsync("projects:all");
+                await _cacheService.RemoveAsync($"projects:{id}");
+            }
+            
+            return ProjectToDelete;
         }
     }
 }

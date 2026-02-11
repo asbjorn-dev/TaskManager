@@ -21,6 +21,13 @@ builder.Services.AddSqlite<AppDbContext>(
     builder.Configuration.GetConnectionString("DbConnection")!
 );
 
+// register redis vha. StackExchange.Redis (open source library)
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    // connection string til redis server 
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+});
+
 // controllers
 builder.Services.AddControllers();
 
@@ -52,11 +59,11 @@ builder.Services.AddScoped<ITeamRepository, TeamRepository>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
+builder.Services.AddSingleton<ICacheService, CacheService>();
 
 // RabbitMQ - Singleton grundet bekostninger(1 connection deles af alle requests, står i rabbit docs)
 builder.Services.AddSingleton<RabbitMqConnectionFactory>();
 builder.Services.AddSingleton<IEventPublisher, RabbitMqPublisher>();
-
 
 // helpers
 builder.Services.AddScoped<TaskServiceHelper>();
