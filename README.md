@@ -28,9 +28,11 @@ Jira-inspireret task management API med relationel datamodel (Teams, Projects, T
 
 - **Repository Pattern** - abstraktion over data access
 - **Service Layer** - business logik separeret fra controllers
+- **DTO Pattern** - Data Transfer Objects separerer API-kontrakt fra interne modeller
 - **Cache-Aside Pattern** - Redis cache med invalidering på write-operationer
 - **Event-Driven Architecture** - asynkron kommunikation via RabbitMQ
 - **Database per Service** - hver microservice ejer sin database
+- **Monolith-first strategy** - start med en simpel monolit og splitt til microservices når kompleksitet og skala kræver det
 
 ## Kom igang
 
