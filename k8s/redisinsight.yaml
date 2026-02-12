@@ -1,0 +1,34 @@
+# RedisInsight - Redis Management UI (kun dev/debug)
+# I produktion: fjern denne deployment og brug kubectl port-forward svc/redis 6379:6379 grundet sikkerhed (de 2 UI kan oprette, purge osv. i UI'et)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redisinsight
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redisinsight
+  template:
+    metadata:
+      labels:
+        app: redisinsight
+    spec:
+      containers:
+        - name: redisinsight
+          image: redis/redisinsight:latest
+          ports:
+            - containerPort: 5540 # redis ui web port
+---
+# services - eksponerer RedisInsight så det kan åbnes i browser
+apiVersion: v1
+kind: Service
+metadata:
+  name: redisinsight
+spec:
+  type: NodePort
+  selector:
+    app: redisinsight
+  ports:
+    - port: 5540 # port inde i cluster
+      nodePort: 30540 # tilgængelig på localhost:30540
