@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: api
+          image: taskmanagement-api:latest
+          imagePullPolicy: Never # brug lokalt image
+          ports:
+            - containerPort: 8080
+          env:
+           # henter fra configmap
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: taskmanagement-config
+                  key: ASPNETCORE_ENVIRONMENT
+          
+          #db connections
+            - name: ConnectionStrings__DbConnection
+              value: "Data Source=TaskManagement.db"
+            - name: ConnectionStrings__Redis
+              value: "redis:6379" # bruger service DNS-navn
+
+          # JWT config - key fra secret.yaml, resten fra configmap   
+            - name: Jwt__Key
+              valueFrom:
+                secretKeyRef:
+                  name: taskmanagement-secret
+                  key: Jwt__Key
+            - name: Jwt__Issuer
+              valueFrom:
+                configMapKeyRef:
+                  name: taskmanagement-config
+                  key: Jwt__Issuer
+            - name: Jwt__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: taskmanagement-config
+                  key: Jwt__Audience
+
+          # rabbitmq config - password fra secret.yaml, resten fra configmap
+            - name: RabbitMQ__Host
+              valueFrom:
+                configMapKeyRef:
+                  name: taskmanagement-config
+                  key: RabbitMQ__Host
+            - name: RabbitMQ__Username
+              valueFrom:
+                configMapKeyRef:
+                  name: taskmanagement-config
+                  key: RabbitMQ__Username
+            - name: RabbitMQ__Password
+              valueFrom:
+                secretKeyRef:
+                  name: taskmanagement-secret
+                  key: RabbitMQ__Password
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+spec:
+  type: NodePort #eksponer port på lokal maskine - i prod ændre til at bruge loadbalancer
+  selector:
+    app: api
+  ports:
+    - port: 8080 # port i cluster
+      nodePort: 30165  # tilgængelig på localhost:30165

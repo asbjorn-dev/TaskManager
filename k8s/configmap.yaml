@@ -1,0 +1,11 @@
+# configmap indeholder ikke sensitiv config (env variabler) som services kan bruge ved name
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: taskmanagement-config
+data:
+  ASPNETCORE_ENVIRONMENT: "Development"
+  Jwt__Issuer: "TaskManagement.Identity"
+  Jwt__Audience: "TaskManagement"
+  RabbitMQ__Host: "rabbitmq"
+  RabbitMQ__Username: "guest"

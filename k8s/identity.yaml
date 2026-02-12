@@ -1,0 +1,61 @@
+# Deployment - styrer pods (start, stop, scale, restart)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: identity
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: identity
+  template:
+    metadata:
+      labels:
+        app: identity
+    spec:
+      containers:
+        - name: identity
+          image: taskmanagement-identity:latest
+          imagePullPolicy: Never # brug lokalt bygget image, ikke Docker Hub
+          ports:
+            - containerPort: 8080
+          env:
+          # henter fra configmap
+            - name: ASPNETCORE_ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: taskmanagement-config
+                  key: ASPNETCORE_ENVIRONMENT
+            # Hardcoded connection string (SQLite lokal fil)
+            - name: ConnectionStrings__IdentityDb
+              value: "Data Source=IdentityDb.db"
+            # henter fra secret.yaml
+            - name: Jwt__Key
+              valueFrom:
+                secretKeyRef:
+                  name: taskmanagement-secret
+                  key: Jwt__Key
+            # henter fra configmap.yaml
+            - name: Jwt__Issuer
+              valueFrom:
+                configMapKeyRef:
+                  name: taskmanagement-config
+                  key: Jwt__Issuer
+            - name: Jwt__Audience
+              valueFrom:
+                configMapKeyRef:
+                  name: taskmanagement-config
+                  key: Jwt__Audience
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: identity # DNS navn andre services kan bruge
+spec:
+  type: NodePort # #eksponer port på lokal maskine - i prod ændre til at bruge loadbalancer
+  selector:
+    app: identity
+  ports:
+    - port: 8080 # port i cluster
+      nodePort: 30215  # tilgængelig på localhost:30215

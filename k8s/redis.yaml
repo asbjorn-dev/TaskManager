@@ -1,0 +1,32 @@
+# Deployment - styrer pods (start, stop, scale, restart)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+      # alle pods får label "app: redis"
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports:
+            - containerPort: 6379 # åbner port inde i containeren
+---
+# Service - giver Pods et stabilt DNS-navn "redis:6379" som andre services kan bruge. 
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  selector:
+    app: redis
+  ports:
+    - port: 6379 # eksponer port til andre services
