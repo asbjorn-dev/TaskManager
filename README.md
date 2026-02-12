@@ -21,6 +21,8 @@ Jira-inspireret task management API med relationel datamodel (Teams, Projects, T
 - JWT Authentication med rollebaseret authorization
 - RabbitMQ (event-driven kommunikation)
 - Redis (distributed caching)
+- Docker Compose (multi-container orchestration)
+- Kubernetes (container orchestration)
 - xUnit + Moq (unit tests)
 - Swagger/OpenAPI
 
@@ -39,51 +41,88 @@ Jira-inspireret task management API med relationel datamodel (Teams, Projects, T
 ### Forudsætninger
 
 - .NET 10 SDK
-- Docker (til RabbitMQ og Redis)
+- Docker Desktop
 
-### 1. Start infrastructure
+### Option 1: Docker Compose
+
+Start hele stacken med én kommando:
+
+```bash
+docker compose up --build
+```
+
+Dette starter alle services og infrastructure automatisk:
+
+| Container | Beskrivelse | URL |
+|-----------|-------------|-----|
+| **Core API** | REST API | `http://localhost:5165/swagger` |
+| **Identity Service** | Auth API | `http://localhost:5215/swagger` |
+| **Notification Service** | Worker (ingen port) | Logs i terminal |
+| **RabbitMQ** | Message broker | `http://localhost:15672` (guest/guest) |
+| **Redis** | Cache | - |
+| **RedisInsight** | Redis UI | `http://localhost:5540` |
+
+Stop med:
+
+```bash
+docker compose down
+```
+
+### Option 2: Kubernetes
+
+Forudsætter Kubernetes aktiveret i Docker Desktop.
+
+Byg images:
+
+```bash
+docker build -t taskmanagement-api:latest -f TaskManagement.Api/Dockerfile .
+docker build -t taskmanagement-identity:latest -f TaskManagement.Identity/Dockerfile .
+docker build -t taskmanagement-notifications:latest -f TaskManagement.Notifications/Dockerfile .
+```
+
+Deploy til cluster:
+
+```bash
+kubectl apply -f k8s/
+```
+
+| Service | URL |
+|---------|-----|
+| **Core API** | `http://localhost:30165/swagger` |
+| **Identity Service** | `http://localhost:30215/swagger` |
+| **RabbitMQ UI** | `http://localhost:30672` (guest/guest) |
+| **RedisInsight** | `http://localhost:30540` |
+
+Stop med:
+
+```bash
+kubectl delete -f k8s/
+```
+
+### Option 3: Lokal udvikling (uden Docker)
+
+Start infrastructure manuelt:
 
 ```bash
 docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management
 docker run -d --name redis -p 6379:6379 redis:latest
 docker run -d --name redisinsight -p 5540:5540 redis/redisinsight:latest
-
 ```
 
-## Start services
+Start services i separate terminaler:
 
-### Terminal 1 - Identity Service
 ```bash
-cd TaskManagement.Identity
-dotnet run
-```
-
-### Terminal 2 - Core API
-```bash
-cd TaskManagement.Api
-dotnet run
-```
-
-### Terminal 3 - Notification Service
-```bash
-cd TaskManagement.Notifications
-dotnet run
+cd TaskManagement.Identity && dotnet run
+cd TaskManagement.Api && dotnet run
+cd TaskManagement.Notifications && dotnet run
 ```
 
 ### Brug API'et
-Gå til http://localhost:5215/swagger (Identity) og opret en bruger via /api/auth/register
-Login via /api/auth/login og kopier JWT token
 
-Gå til http://localhost:5165/swagger (Core API) og klik "Authorize" - indsæt token.
-
-Nu kan du oprette Teams, Projects og Tasks
-
-### Management UI'er
-
-| UI | URL | Credentials |
-|----|-----|-------------|
-| **RabbitMQ Management** | `http://localhost:15672` | guest / guest |
-| **RedisInsight** | `http://localhost:5540` | Tilføj connection: host `host.docker.internal`, port `6379` |
+1. Gå til Identity Swagger og opret en bruger via `POST /api/auth/register`
+2. Login via `POST /api/auth/login` og kopier JWT token
+3. Gå til Core API Swagger og klik "Authorize" - indsæt token
+4. Nu kan du oprette Teams, Projects og Tasks
 
 
 ### Kør tests
@@ -92,12 +131,12 @@ dotnet test
 ```
 
 ## Roadmap
-- Monolit med REST API, Repository Pattern og Unit Tests ✅
-- Identity Service (JWT Auth) ✅
-- RabbitMQ + Notification Service ✅
-- Redis Caching ✅
-- Docker Compose
-- Kubernetes deployment
-- Arkitektur-diagrammer (draw.io)
-- Forbedre test coverage
-- Videreudvikle Notification Service, så den sender emails
+- [x] Monolit med REST API, Repository Pattern og Unit Tests
+- [x] Identity Service (JWT Auth)
+- [x] RabbitMQ + Notification Service
+- [x] Redis Caching
+- [x] Docker Compose
+- [x] Kubernetes deployment
+- [ ] Arkitektur-diagrammer (draw.io)
+- [ ] Forbedre test coverage
+- [ ] Videreudvikle Notification Service (email/Slack)
