@@ -74,12 +74,16 @@ public class CacheService : ICacheService
         }
     }
 
-    // fjerner grupper af cache entries på en gang - Redis har ikke "collections", kun keys. Prefixes simulerer grupper
-    // egnet til Tasks - når en task oprettes, vil vi slette alle task relaterede cache enttries (task:all, tasks:5)
+
+    // TODO: Implementer prefix-baseret cache invalidering med StackExchange.Redis SCAN kommando
+    // IDistributedCache understøtter ikke key-søgning - Prefixes metoden vil simulerer grupper af keys
+    // Formål: slet alle keys der matcher et prefix (f.eks. "tasks:" sletter tasks:all, tasks:5, tasks:project:abc)
     public async Task RemoveByPrefixAsync(string prefix)
     {
         // IDistributeCache har ingen built in prefix removal
         // for nu logger vi det
-        _logger.LogWarning("Cache invalidation requested for prefix: {Prefix}", prefix);
-    }
+       _logger.LogWarning("RemoveByPrefixAsync not implemented. Prefix: {Prefix}", prefix);
+    }   
+
+    
 }

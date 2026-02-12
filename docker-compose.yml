@@ -1,13 +1,100 @@
 services:
-  api:
-    build: .
+  # ============================================
+  # Infrastructure
+  # ============================================
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: taskmanagement-rabbitmq
     ports:
-      - "5000:8080"
+      - "5672:5672" # port services kommunikere med rabbit i docker
+      - "15672:15672" # Management UI for rabbit
     environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: taskmanagement-redis
+    ports:
+      - "6379:6379" # port services kommunikerer med redis i docker
+    volumes:
+      - redis-data:/data
+
+  redisinsight:
+    image: redis/redisinsight:latest
+    container_name: taskmanagement-redisinsight
+    ports:
+      - "5540:5540"
+    volumes:
+      - redisinsight-data:/data # gemmer login config
+
+  # ============================================
+  # Services
+  # ============================================
+  identity:
+    build:
+      context: .
+      dockerfile: TaskManagement.Identity/Dockerfile
+    container_name: taskmanagement-identity
+    ports:
+      - "5215:8080"
+    environment: # overskriver appsettings.dev
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__IdentityDb=Data Source=/app/data/IdentityDb.db
+      - Jwt__Key=vK8x2mN9pQ5wR7tY3uZ1aB6cD4eF0gH8iJ2kL5mN9oP
+      - Jwt__Issuer=TaskManagement.Identity
+      - Jwt__Audience=TaskManagement
+    volumes:
+      - identity-data:/app/data
+
+  api:
+    build:
+      context: .
+      dockerfile: TaskManagement.Api/Dockerfile
+    container_name: taskmanagement-api
+    ports:
+      - "5165:8080"
+    environment: # overskriver appsettings.dev
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DbConnection=Data Source=/app/data/TaskManagement.db
+      - ConnectionStrings__Redis=redis:6379 # service navn brugt som hostname
+      - Jwt__Key=vK8x2mN9pQ5wR7tY3uZ1aB6cD4eF0gH8iJ2kL5mN9oP
+      - Jwt__Issuer=TaskManagement.Identity
+      - Jwt__Audience=TaskManagement
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
     volumes:
-      - taskmanagement-data:/app/data
+      - api-data:/app/data # db gemmes i volume
+    depends_on: # Venter på healthcheck fra redis og rabbitmq når den er oppe før den starter
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
-volumes:
-  taskmanagement-data:
+  notifications:
+    build:
+      context: .
+      dockerfile: TaskManagement.Notifications/Dockerfile
+    container_name: taskmanagement-notifications
+    environment:
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+volumes: # gemmer volumes på lokal maskine
+  rabbitmq-data:
+  redis-data:
+  redisinsight-data:
+  identity-data:
+  api-data:

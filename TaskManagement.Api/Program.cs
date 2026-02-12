@@ -60,6 +60,7 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddSingleton<ICacheService, CacheService>();
+builder.Services.AddHostedService<DueSoonBackgroundService>(); // er singleton - backgroundservice for DueSoon tasks notifications
 
 // RabbitMQ - Singleton grundet bekostninger(1 connection deles af alle requests, står i rabbit docs)
 builder.Services.AddSingleton<RabbitMqConnectionFactory>();
