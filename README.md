@@ -43,12 +43,20 @@ Jira-inspireret task management API med relationel datamodel (Teams, Projects, T
 - .NET 10 SDK
 - Docker Desktop
 
+## Docker Hub
+Alle service images er tilgængelige på Docker Hub med semantisk versionering:
+| Image | Stabil version |
+|-----------|-------------|
+| asbjorndev/taskmanagement-api | 1.0.0 |
+| asbjorndev/taskmanagement-identity | 1.0.0 |
+| asbjorndev/taskmanagement-notifications | 1.0.0 |
+
 ### Option 1: Docker Compose
 
 Start hele stacken med én kommando:
 
 ```bash
-docker compose up --build
+docker compose up
 ```
 
 Dette starter alle services og infrastructure automatisk:
@@ -71,16 +79,6 @@ docker compose down
 ### Option 2: Kubernetes
 
 Forudsætter Kubernetes aktiveret i Docker Desktop.
-
-Byg images:
-
-```bash
-docker build -t taskmanagement-api:latest -f TaskManagement.Api/Dockerfile .
-docker build -t taskmanagement-identity:latest -f TaskManagement.Identity/Dockerfile .
-docker build -t taskmanagement-notifications:latest -f TaskManagement.Notifications/Dockerfile .
-```
-
-Deploy til cluster:
 
 ```bash
 kubectl apply -f k8s/
@@ -123,6 +121,7 @@ cd TaskManagement.Notifications && dotnet run
 2. Login via `POST /api/auth/login` og kopier JWT token
 3. Gå til Core API Swagger og klik "Authorize" - indsæt token
 4. Nu kan du oprette Teams, Projects og Tasks
+5. Admins kan slette Teams, projects og Tasks (kræver admin token)
 
 
 ### Kør tests
