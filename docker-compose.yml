@@ -39,9 +39,7 @@ services:
   # Services
   # ============================================
   identity:
-    build:
-      context: .
-      dockerfile: TaskManagement.Identity/Dockerfile
+    image: asbjorndev/taskmanagement-identity:1.0.0
     container_name: taskmanagement-identity
     ports:
       - "5215:8080"
@@ -55,9 +53,7 @@ services:
       - identity-data:/app/data
 
   api:
-    build:
-      context: .
-      dockerfile: TaskManagement.Api/Dockerfile
+    image: asbjorndev/taskmanagement-api:1.0.0
     container_name: taskmanagement-api
     ports:
       - "5165:8080"
@@ -80,9 +76,7 @@ services:
         condition: service_started
 
   notifications:
-    build:
-      context: .
-      dockerfile: TaskManagement.Notifications/Dockerfile
+    image: asbjorndev/taskmanagement-notifications:1.0.0
     container_name: taskmanagement-notifications
     environment:
       - RabbitMQ__Host=rabbitmq

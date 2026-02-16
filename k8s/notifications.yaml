@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
         - name: notifications
-          image: taskmanagement-notifications:latest
-          imagePullPolicy: Never # hent ikke image fra docker hub, bruger lokalt image
+          image: asbjorndev/taskmanagement-notifications:1.0.0
+          imagePullPolicy: IfNotPresent
           env:
           # rabbitmq config - denne service lytter kun på beskeder
           # ingen porte da den kun er consumer

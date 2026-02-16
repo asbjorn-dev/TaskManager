@@ -15,8 +15,8 @@ spec:
     spec:
       containers:
         - name: identity
-          image: taskmanagement-identity:latest
-          imagePullPolicy: Never # brug lokalt bygget image, ikke Docker Hub
+          image: asbjorndev/taskmanagement-identity:1.0.0
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           env:

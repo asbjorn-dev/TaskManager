@@ -14,8 +14,8 @@ spec:
     spec:
       containers:
         - name: api
-          image: taskmanagement-api:latest
-          imagePullPolicy: Never # brug lokalt image
+          image: asbjorndev/taskmanagement-api:1.0.0
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080
           env:
