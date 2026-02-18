@@ -7,6 +7,16 @@ Jira-inspireret task management API med relationel datamodel (Teams, Projects, T
 
 ## Arkitektur
 
+|  |  |
+|--|--|
+| <img src="docs/diagrams/system-arkitektur.png" height="300"/><br/>[**System Arkitektur**](docs/diagrams/system-arkitektur.png) | <img src="docs/diagrams/auth-flow.png" height="300"/><br/>[**Auth Flow**](docs/diagrams/auth-flow.png) |
+|--|--|
+| <img src="docs/diagrams/task-creation-flow.png" height="300"/><br/>[**Task Creation Flow**](docs/diagrams/task-creation-flow.png) | <img src="docs/diagrams/data-model.png" height="300"/><br/>[**Data Model**](docs/diagrams/data-model.png) |
+
+
+> [Åbn diagrammer i draw.io](https://drive.google.com/file/d/18A2Zk6R_-KGXfYWBcAkYv6MG8uTJgTBr/view?usp=sharing)
+
+
 | Service | Beskrivelse | Port |
 |---------|-------------|------|
 | **Core API** | REST API til Teams, Projects og Tasks | 5165 |
@@ -136,6 +146,6 @@ dotnet test
 - [x] Redis Caching
 - [x] Docker Compose
 - [x] Kubernetes deployment
-- [ ] Arkitektur-diagrammer (draw.io)
+- [x] Arkitektur-diagrammer (draw.io)
 - [ ] Forbedre test coverage
 - [ ] Videreudvikle Notification Service (email/Slack)
