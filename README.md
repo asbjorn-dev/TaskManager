@@ -62,9 +62,11 @@ Jira-inspireret task management API med relationel datamodel (Teams, Projects, T
 Alle service images er tilgængelige på Docker Hub med semantisk versionering:
 | Image | Stabil version |
 |-----------|-------------|
-| asbjorndev/taskmanagement-api | 1.0.0 |
-| asbjorndev/taskmanagement-identity | 1.1.0 |
-| asbjorndev/taskmanagement-notifications | 1.0.0 |
+| asbjorndev/taskmanagement-api | 1.2.0 |
+| asbjorndev/taskmanagement-identity | 1.2.0 |
+| asbjorndev/taskmanagement-notifications | 1.2.0 |
+
+> Versions styres via git tags - et nyt tag (`git tag v1.x.x && git push origin v1.x.x`) trigger automatisk GitHub Actions CI/CD der kører tests, bygger og pusher alle images til Docker Hub.
 
 ### Option 1: Docker Compose
 
