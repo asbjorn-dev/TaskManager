@@ -23,6 +23,7 @@ Jira-inspireret task management API med relationel datamodel (Teams, Projects, T
 | **Identity Service** | JWT authentication og bruger-registrering | 5215 |
 | **Notification Service** | Worker service der lytter på RabbitMQ events | - |
 | **Shared** | Class library med delte event-modeller | - |
+| **NGINX** | API Gateway - single entry point, router trafik til services | 80 |
 
 ## Teknologier
 
@@ -33,6 +34,7 @@ Jira-inspireret task management API med relationel datamodel (Teams, Projects, T
 - Redis (distributed caching)
 - Docker Compose (multi-container orchestration)
 - Kubernetes (container orchestration)
+- NGINX (API Gateway / reverse proxy)
 - xUnit + Moq (unit tests)
 - Swagger/OpenAPI
 
@@ -45,6 +47,7 @@ Jira-inspireret task management API med relationel datamodel (Teams, Projects, T
 - **Event-Driven Architecture** - asynkron kommunikation via RabbitMQ
 - **Database per Service** - hver microservice ejer sin database
 - **Monolith-first strategy** - start med en simpel monolit og splitt til microservices når kompleksitet og skala kræver det
+- **API Gateway Pattern** - NGINX som single entry point der router til services
 
 ## Kom igang
 
@@ -53,12 +56,14 @@ Jira-inspireret task management API med relationel datamodel (Teams, Projects, T
 - .NET 10 SDK
 - Docker Desktop
 
+> **Default admin bruger** (seeder automatisk i Development): `admin@admin.com` / `admin123`
+
 ## Docker Hub
 Alle service images er tilgængelige på Docker Hub med semantisk versionering:
 | Image | Stabil version |
 |-----------|-------------|
 | asbjorndev/taskmanagement-api | 1.0.0 |
-| asbjorndev/taskmanagement-identity | 1.0.0 |
+| asbjorndev/taskmanagement-identity | 1.1.0 |
 | asbjorndev/taskmanagement-notifications | 1.0.0 |
 
 ### Option 1: Docker Compose
@@ -73,6 +78,7 @@ Dette starter alle services og infrastructure automatisk:
 
 | Container | Beskrivelse | URL |
 |-----------|-------------|-----|
+| **NGINX** | API Gateway | `http://localhost/api/...` |
 | **Core API** | REST API | `http://localhost:5165/swagger` |
 | **Identity Service** | Auth API | `http://localhost:5215/swagger` |
 | **Notification Service** | Worker (ingen port) | Logs i terminal |
@@ -96,6 +102,7 @@ kubectl apply -f k8s/
 
 | Service | URL |
 |---------|-----|
+| **NGINX** | `http://localhost:30080/api/...` |
 | **Core API** | `http://localhost:30165/swagger` |
 | **Identity Service** | `http://localhost:30215/swagger` |
 | **RabbitMQ UI** | `http://localhost:30672` (guest/guest) |
@@ -147,5 +154,6 @@ dotnet test
 - [x] Docker Compose
 - [x] Kubernetes deployment
 - [x] Arkitektur-diagrammer (draw.io)
+- [x] NGINX implementeret
 - [ ] Forbedre test coverage
 - [ ] Videreudvikle Notification Service (email/Slack)
