@@ -1,0 +1,83 @@
+# Bruger ConfigMap til at gemme nginx.conf som string format
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  nginx.conf: |
+    worker_processes auto;
+
+    events {
+        worker_connections 1024;
+    }
+
+    http {
+        upstream api {
+            server api:8080;
+        }
+
+        upstream identity {
+            server identity:8080;
+        }
+
+        server {
+            listen 80;
+
+            location /api/auth/ {
+                proxy_pass http://identity/api/auth/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            }
+
+            location /api/ {
+                proxy_pass http://api/api/;
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            }
+        }
+    }
+---
+# Deployment - oprettelse af nginx container
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:alpine
+          ports:
+            - containerPort: 80 # nginx lytter på port 80, ingen eksponering, det gør services
+      # trækker/mount indholdet fra vores ConfigMap ind i containeren
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/nginx.conf
+              subPath: nginx.conf # monter kun nginx.conf filen, ikke hele mappen
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: nginx-config
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  type: NodePort
+  selector:
+    app: nginx # matcher de Pods, der har labellet "app: nginx"
+  ports:
+    - port: 80
+      nodePort: 30080 #NodePort eksponerer NGINX på localhost:30080

@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: identity
-          image: asbjorndev/taskmanagement-identity:1.0.0
+          image: asbjorndev/taskmanagement-identity:1.1.0
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 8080

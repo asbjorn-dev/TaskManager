@@ -39,7 +39,7 @@ services:
   # Services
   # ============================================
   identity:
-    image: asbjorndev/taskmanagement-identity:1.0.0
+    image: asbjorndev/taskmanagement-identity:1.1.0
     container_name: taskmanagement-identity
     ports:
       - "5215:8080"
@@ -85,6 +85,18 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+
+  nginx:
+    image: nginx:alpine
+    container_name: taskmanagement-nginx
+    ports:
+      - "80:80" # port 80 til API Gateway + 80 inde i container 
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro # nginx.conf gemmes i volume + ro = read-only mount
+    depends_on:
+      - api
+      - identity
+
 
 volumes: # gemmer volumes på lokal maskine
   rabbitmq-data:

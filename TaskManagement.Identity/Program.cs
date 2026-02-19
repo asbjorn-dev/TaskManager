@@ -20,11 +20,15 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 
-// auto migration
+// auto migration + seed
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<IdentityDbContext>();
     context.Database.Migrate();
+
+    // seed admin bruger i development
+    if (app.Environment.IsDevelopment())
+        IdentitySeeder.SeedAdmin(context);
 }
 
 // Configure the HTTP request pipeline.
