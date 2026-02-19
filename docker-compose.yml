@@ -39,7 +39,7 @@ services:
   # Services
   # ============================================
   identity:
-    image: asbjorndev/taskmanagement-identity:1.1.0
+    image: asbjorndev/taskmanagement-identity:1.2.0
     container_name: taskmanagement-identity
     ports:
       - "5215:8080"
@@ -53,7 +53,7 @@ services:
       - identity-data:/app/data
 
   api:
-    image: asbjorndev/taskmanagement-api:1.0.0
+    image: asbjorndev/taskmanagement-api:1.2.0
     container_name: taskmanagement-api
     ports:
       - "5165:8080"
@@ -76,7 +76,7 @@ services:
         condition: service_started
 
   notifications:
-    image: asbjorndev/taskmanagement-notifications:1.0.0
+    image: asbjorndev/taskmanagement-notifications:1.2.0
     container_name: taskmanagement-notifications
     environment:
       - RabbitMQ__Host=rabbitmq
