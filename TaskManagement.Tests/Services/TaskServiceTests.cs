@@ -21,6 +21,9 @@ public class TaskServiceTests
         _mockRepository = new Mock<ITaskRepository>();
         var mockEventPublisher = new Mock<IEventPublisher>();
         var mockCacheService = new Mock<ICacheService>();
+        // Moq returnerer empty IEnumerable som default for collection types - tving cache miss med null
+        mockCacheService.Setup(c => c.GetAsync<IEnumerable<TaskResponseDto>>(It.IsAny<string>()))
+        .ReturnsAsync((IEnumerable<TaskResponseDto>?)null);
 
         
         // TaskServiceHelper er en konkret klasse (har ikke interface) og den afhænger af AppDbContext

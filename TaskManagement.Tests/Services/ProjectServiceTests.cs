@@ -18,8 +18,11 @@ public class ProjectServiceTests
     public ProjectServiceTests()
     {
         _mockRepository = new Mock<IProjectRepository>();
-        var mockCacheService = new Mock<ICacheService>();
-        _projectService = new ProjectService(_mockRepository.Object, mockCacheService.Object);
+    var mockCacheService = new Mock<ICacheService>();
+    // Moq returnerer empty IEnumerable som default for collection types - tving cache miss med null
+    mockCacheService.Setup(c => c.GetAsync<IEnumerable<ProjectResponseDto>>(It.IsAny<string>()))
+        .ReturnsAsync((IEnumerable<ProjectResponseDto>?)null);
+    _projectService = new ProjectService(_mockRepository.Object, mockCacheService.Object);
     }
 
     // == GetAllAsync Tests == 

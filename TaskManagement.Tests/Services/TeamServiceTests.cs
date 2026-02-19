@@ -11,12 +11,16 @@ public class TeamServiceTests
     private readonly Mock<ITeamRepository> _mockRepository;
     private readonly TeamService _teamService;
 
-    public TeamServiceTests()
-    {
-        _mockRepository = new Mock<ITeamRepository>();
-        var mockCacheService = new Mock<ICacheService>();
-        _teamService = new TeamService(_mockRepository.Object, mockCacheService.Object);
-    }
+public TeamServiceTests()
+{
+    _mockRepository = new Mock<ITeamRepository>();
+    var mockCacheService = new Mock<ICacheService>();
+    // Moq returnerer empty IEnumerable som default for collection types - tving cache miss med null
+    mockCacheService.Setup(c => c.GetAsync<IEnumerable<TeamResponseDto>>(It.IsAny<string>()))
+        .ReturnsAsync((IEnumerable<TeamResponseDto>?)null);
+    _teamService = new TeamService(_mockRepository.Object, mockCacheService.Object);
+}
+
 
 
      // == GetAllAsync Tests ==
