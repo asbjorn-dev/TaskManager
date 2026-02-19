@@ -18,7 +18,8 @@ public class ProjectServiceTests
     public ProjectServiceTests()
     {
         _mockRepository = new Mock<IProjectRepository>();
-        _projectService = new ProjectService(_mockRepository.Object);
+        var mockCacheService = new Mock<ICacheService>();
+        _projectService = new ProjectService(_mockRepository.Object, mockCacheService.Object);
     }
 
     // == GetAllAsync Tests == 

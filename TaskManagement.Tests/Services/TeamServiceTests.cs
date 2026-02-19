@@ -14,7 +14,8 @@ public class TeamServiceTests
     public TeamServiceTests()
     {
         _mockRepository = new Mock<ITeamRepository>();
-        _teamService = new TeamService(_mockRepository.Object);
+        var mockCacheService = new Mock<ICacheService>();
+        _teamService = new TeamService(_mockRepository.Object, mockCacheService.Object);
     }
 
 

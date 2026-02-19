@@ -19,7 +19,10 @@ public class TaskServiceTests
     public TaskServiceTests()
     {
         _mockRepository = new Mock<ITaskRepository>();
+        var mockEventPublisher = new Mock<IEventPublisher>();
+        var mockCacheService = new Mock<ICacheService>();
 
+        
         // TaskServiceHelper er en konkret klasse (har ikke interface) og den afhænger af AppDbContext
         // Derfor bruger vi InMemory database i stedet for mock
         var options = new DbContextOptionsBuilder<AppDbContext>()
@@ -28,7 +31,7 @@ public class TaskServiceTests
         var context = new AppDbContext(options);
         var helper = new TaskServiceHelper(context);
 
-        _taskService = new TaskService(_mockRepository.Object, helper);
+        _taskService = new TaskService(_mockRepository.Object, helper, mockEventPublisher.Object, mockCacheService.Object);
     }
 
     // == GetAllAsync Tests ==

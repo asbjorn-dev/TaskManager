@@ -25,11 +25,13 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+    # Peger direkte på test projektet
       - name: Restore dependencies
-        run: dotnet restore
+        run: dotnet restore TaskManagement.Tests/TaskManagement.Tests.csproj
 
       - name: Run tests
-        run: dotnet test --no-restore --verbosity normal
+        run: dotnet test TaskManagement.Tests/TaskManagement.Tests.csproj --no-restore --verbosity normal
+
 
   # ============================================
   # Job 2: Byg og push Docker images til Docker Hub
