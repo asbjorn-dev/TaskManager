@@ -9,9 +9,10 @@ Jira-inspireret task management API med relationel datamodel (Teams, Projects, T
 
 |  |  |
 |--|--|
-| <img src="docs/diagrams/system-arkitektur.png" height="300"/><br/>[**System Arkitektur**](docs/diagrams/system-arkitektur.png) | <img src="docs/diagrams/auth-flow.png" height="300"/><br/>[**Auth Flow**](docs/diagrams/auth-flow.png) |
+| <img src="docs/diagrams/system-arkitektur-v2.png" height="300"/><br/>[**System Arkitektur**](docs/diagrams/system-arkitektur-v2.png) | <img src="docs/diagrams/auth-flow.png" height="300"/><br/>[**Auth Flow**](docs/diagrams/auth-flow.png) |
 |--|--|
-| <img src="docs/diagrams/task-creation-flow.png" height="300"/><br/>[**Task Creation Flow**](docs/diagrams/task-creation-flow.png) | <img src="docs/diagrams/data-model.png" height="300"/><br/>[**Data Model**](docs/diagrams/data-model.png) |
+| <img src="docs/diagrams/task-creation-flow-v2.png" height="300"/><br/>[**Task Creation Flow**](docs/diagrams/task-creation-flow-v2.png) | <img src="docs/diagrams/data-model.png" height="300"/><br/>[**Data Model**](docs/diagrams/data-model.png) |
+
 
 
 > [Åbn diagrammer i draw.io](https://drive.google.com/file/d/18A2Zk6R_-KGXfYWBcAkYv6MG8uTJgTBr/view?usp=sharing)
