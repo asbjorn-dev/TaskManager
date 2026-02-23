@@ -60,7 +60,10 @@ builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddSingleton<ICacheService, CacheService>();
-builder.Services.AddHostedService<DueSoonBackgroundService>(); // er singleton - backgroundservice for DueSoon tasks notifications
+
+// background workers - AddHostedService er singleton, men speicelt egnet til workers (asp.net kalder automatisk ExecuteAsync når app starter og StopAsync når app lukkes)
+builder.Services.AddHostedService<DueSoonBackgroundService>(); //backgroundservice for DueSoon tasks notifications
+builder.Services.AddHostedService<UserSyncWorker>();
 
 // RabbitMQ - Singleton grundet bekostninger(1 connection deles af alle requests, står i rabbit docs)
 builder.Services.AddSingleton<RabbitMqConnectionFactory>();

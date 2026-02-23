@@ -39,7 +39,7 @@ services:
   # Services
   # ============================================
   identity:
-    image: asbjorndev/taskmanagement-identity:1.2.0
+    image: asbjorndev/taskmanagement-identity:1.4.0
     container_name: taskmanagement-identity
     ports:
       - "5215:8080"
@@ -49,11 +49,17 @@ services:
       - Jwt__Key=vK8x2mN9pQ5wR7tY3uZ1aB6cD4eF0gH8iJ2kL5mN9oP
       - Jwt__Issuer=TaskManagement.Identity
       - Jwt__Audience=TaskManagement
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
     volumes:
       - identity-data:/app/data
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
 
   api:
-    image: asbjorndev/taskmanagement-api:1.2.0
+    image: asbjorndev/taskmanagement-api:1.4.0
     container_name: taskmanagement-api
     ports:
       - "5165:8080"
@@ -76,7 +82,7 @@ services:
         condition: service_started
 
   notifications:
-    image: asbjorndev/taskmanagement-notifications:1.2.0
+    image: asbjorndev/taskmanagement-notifications:1.4.0
     container_name: taskmanagement-notifications
     environment:
       - RabbitMQ__Host=rabbitmq

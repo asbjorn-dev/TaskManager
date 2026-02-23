@@ -4,6 +4,7 @@ using TaskManagement.Identity.Data;
 using TaskManagement.Identity.Dtos;
 using TaskManagement.Identity.Interfaces;
 using TaskManagement.Identity.Models;
+using TaskManagement.Shared.Events;
 
 namespace TaskManagement.Identity.Services;
 
@@ -11,10 +12,12 @@ public class AuthService : IAuthService
 {
     private readonly IdentityDbContext _context;
     private readonly ITokenService _tokenService;
-    public AuthService(IdentityDbContext context, ITokenService tokenService)
+    private readonly IEventPublisher _eventPublisher;
+    public AuthService(IdentityDbContext context, ITokenService tokenService, IEventPublisher eventPublisher)
     {
         _context = context;
         _tokenService = tokenService;
+        _eventPublisher = eventPublisher;
     }
 
 
@@ -39,6 +42,14 @@ public class AuthService : IAuthService
         // microsoft dokumentation siger bruge synkront Add over AddAsync (vi ændre kun noget i memory)
         _context.Users.Add(user);
         await _context.SaveChangesAsync(); // her rører vi db og skal være asynkront
+
+        // publish ny user event til rabbit (til sync user til core api)
+        await _eventPublisher.PublishAsync(new UserRegisteredEvent
+        {
+            UserId = user.id,
+            Name = user.Name,
+            Email = user.Email
+        }, "user.registered");
 
         // opret response dto med brugerinfo + ny token
         return new AuthResponseDto

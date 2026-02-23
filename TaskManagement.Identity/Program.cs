@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TaskManagement.Identity.Data;
+using TaskManagement.Identity.Infrastructure;
 using TaskManagement.Identity.Interfaces;
 using TaskManagement.Identity.Services;
 
@@ -17,6 +18,9 @@ builder.Services.AddSqlite<IdentityDbContext>(
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+// rabbitmq - singleton best practice i rabbit docs (en instans deles i hele app's levetid)
+builder.Services.AddSingleton<RabbitMqConnectionFactory>();
+builder.Services.AddSingleton<IEventPublisher, RabbitMqPublisher>();
 
 var app = builder.Build();
 
