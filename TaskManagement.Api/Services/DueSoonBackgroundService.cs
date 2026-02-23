@@ -82,7 +82,8 @@ public class DueSoonBackgroundService : BackgroundService
                 Title = task.Title,
                 DueDate = task.DueDate.Value,
                 AssignedUserId = task.AssignedUserId,
-                HoursUntilDue = hoursLeft
+                HoursUntilDue = hoursLeft,
+                AssignedUserEmail = task.AssignedUser?.Email
             }, "task.due-soon");
         }
     }

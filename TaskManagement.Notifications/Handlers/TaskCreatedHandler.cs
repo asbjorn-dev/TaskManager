@@ -6,25 +6,30 @@ namespace TaskManagement.Notifications.Handlers;
 
 public class TaskCreatedHandler : IEventHandler
 {
+    private readonly IEmailService _emailService;
     private readonly ILogger<TaskCreatedHandler> _logger;
-    public TaskCreatedHandler(ILogger<TaskCreatedHandler> logger)
+    public TaskCreatedHandler(IEmailService emailService, ILogger<TaskCreatedHandler> logger)
     {
+        _emailService = emailService;
         _logger = logger;
     }
 
     public string RoutingKey => "task.created";
 
-    public Task HandleAsync(string json)
+    public async Task HandleAsync(string json)
     {
         // convert JSON til TaskCreatedEvent objekt
         var created = JsonSerializer.Deserialize<TaskCreatedEvent>(json);
+        if (created == null)
+            return;
 
         _logger.LogInformation(
             "[Notification] New task: {Title} (Due: {DueDate})",
             created?.Title, created?.DueDate
         );
 
-        // return completed Task
-        return Task.CompletedTask;
+        // send kun email hvis task er assigned til en user med email
+        if (!string.IsNullOrEmpty(created.AssignedUserEmail))
+            await _emailService.SendTaskCreatedAsync(created.AssignedUserEmail, created.Title, created.DueDate);
     }
 }

@@ -82,6 +82,12 @@ services:
       - RabbitMQ__Host=rabbitmq
       - RabbitMQ__Username=guest
       - RabbitMQ__Password=guest
+      - Smtp__Username=${SMTP_USERNAME}
+      - Smtp__Password=${SMTP_PASSWORD}
+      - Smtp__Host=sandbox.smtp.mailtrap.io
+      - Smtp__Port=587
+      - Smtp__FromEmail=noreply@taskmanagement.com
+      - Smtp__FromName=Task Management
     depends_on:
       rabbitmq:
         condition: service_healthy

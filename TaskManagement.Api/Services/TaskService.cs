@@ -131,7 +131,8 @@ public class TaskService : ITaskService
             ProjectId = task.ProjectId,
             DueDate = task.DueDate,
             AssignedUserId = task.AssignedUserId,
-            CreatedAt = task.CreatedAt
+            CreatedAt = task.CreatedAt,
+            AssignedUserEmail = taskWithTags?.AssignedUser?.Email
         }, "task.created");
         
         // invalidate cache - ny task oprettes, skal cache ryddes (forældet)

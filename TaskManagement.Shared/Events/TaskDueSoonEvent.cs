@@ -9,4 +9,5 @@ public class TaskDueSoonEvent
     public DateTime DueDate { get; set; }
     public Guid? AssignedUserId { get; set; }
     public int HoursUntilDue { get; set; }
+    public string AssignedUserEmail {get; set;}
 }

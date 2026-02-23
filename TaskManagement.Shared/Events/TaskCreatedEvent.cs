@@ -10,5 +10,6 @@ public class TaskCreatedEvent
     public DateTime? DueDate {get; set;}
     public Guid? AssignedUserId  {get; set;}
     public DateTime CreatedAt {get; set;}
+    public string AssignedUserEmail {get; set;}
 
 }
