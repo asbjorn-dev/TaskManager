@@ -62,9 +62,9 @@ Jira-inspireret task management API med relationel datamodel (Teams, Projects, T
 Alle service images er tilgængelige på Docker Hub med semantisk versionering:
 | Image | Stabil version |
 |-----------|-------------|
-| asbjorndev/taskmanagement-api | 1.2.0 |
-| asbjorndev/taskmanagement-identity | 1.2.0 |
-| asbjorndev/taskmanagement-notifications | 1.2.0 |
+| asbjorndev/taskmanagement-api | 1.4.0 |
+| asbjorndev/taskmanagement-identity | 1.4.0 |
+| asbjorndev/taskmanagement-notifications | 1.4.0 |
 
 > Versions styres via git tags - et nyt tag (`git tag v1.x.x && git push origin v1.x.x`) trigger automatisk GitHub Actions CI/CD der kører tests, bygger og pusher alle images til Docker Hub.
 
@@ -137,7 +137,7 @@ cd TaskManagement.Notifications && dotnet run
 ### Brug API'et
 
 1. Gå til Identity Swagger og opret en bruger via `POST /api/auth/register`
-2. Login via `POST /api/auth/login` og kopier JWT token
+2. Login via `POST /api/auth/login` og kopier JWT token.
 3. Gå til Core API Swagger og klik "Authorize" - indsæt token
 4. Nu kan du oprette Teams, Projects og Tasks
 5. Admins kan slette Teams, projects og Tasks (kræver admin token)
@@ -157,5 +157,6 @@ dotnet test
 - [x] Kubernetes deployment
 - [x] Arkitektur-diagrammer (draw.io)
 - [x] NGINX implementeret
+- [x] Email notifikationer via MailKit + MailTrap
+- [x] Event-driven user database sync (Identity → Core API via RabbitMQ)
 - [ ] Forbedre test coverage
-- [ ] Videreudvikle Notification Service (email/Slack)
